@@ -159,7 +159,8 @@ app.get("/health", (req, res) => {
 app.get("/", (req, res) => {
     res.json({ 
         status: "Debby Booster API is running", 
-        version: "2.0.0"
+        version: "2.0.0",
+        timestamp: new Date().toISOString()
     });
 });
 
