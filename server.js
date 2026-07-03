@@ -55,6 +55,7 @@ app.post("/api/admin/clear-services", async (req, res) => {
 });
 
 // ==================== IMPORT SERVICES WITH NGN ====================
+// ==================== IMPORT SERVICES WITH NGN ====================
 app.post("/api/admin/import-services-ngn", async (req, res) => {
     try {
         const { exchangeRate = 1500, profitMargin = 100 } = req.body;
@@ -76,7 +77,11 @@ app.post("/api/admin/import-services-ngn", async (req, res) => {
             action: "services"
         }, { timeout: 60000 });
 
-        if (!response.data || !response.data.services) {
+        // The response is an array directly, not { services: [...] }
+        const exoServices = response.data;
+        
+        // Check if it's an array
+        if (!Array.isArray(exoServices) || exoServices.length === 0) {
             return res.json({
                 success: false,
                 imported: 0,
@@ -84,26 +89,29 @@ app.post("/api/admin/import-services-ngn", async (req, res) => {
             });
         }
 
-        const exoServices = response.data.services;
         let importedCount = 0;
         const importedServices = [];
 
         for (const svc of exoServices) {
             try {
-                const priceUSD = parseFloat(svc.price) || 0;
+                const priceUSD = parseFloat(svc.rate) || 0;
                 const priceNGN = Math.ceil(priceUSD * exchangeRate) + profitMargin;
+
+                // Get category from the response
+                let category = svc.category || "Other";
+                let subcategory = svc.type || svc.subcategory || "General";
 
                 const newService = new Service({
                     id: `SVC_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
                     name: svc.name || "Unknown Service",
                     priceUSD: priceUSD,
                     priceNGN: priceNGN,
-                    category: svc.category || "Other",
-                    subcategory: svc.subcategory || "General",
+                    category: category,
+                    subcategory: subcategory,
                     minQuantity: Math.max(svc.min || 100, 100),
                     maxQuantity: svc.max || 5000,
                     description: svc.description || "",
-                    exoServiceId: svc.id || svc.service || null,
+                    exoServiceId: svc.service || svc.id || null,
                     userPriceNGN: null,
                     profit: profitMargin
                 });
@@ -139,7 +147,6 @@ app.post("/api/admin/import-services-ngn", async (req, res) => {
         });
     }
 });
-
 // ==================== GET ALL SERVICES ====================
 app.get("/api/admin/services", async (req, res) => {
     try {
