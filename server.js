@@ -1,4 +1,4 @@
-// server.js - Complete with all endpoints
+// server.js - Complete with all routes
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -150,6 +150,7 @@ app.get("/api/admin/services", async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 });
+
 // ==================== ROOT ROUTES ====================
 app.get("/", (req, res) => {
     res.json({ 
@@ -162,6 +163,7 @@ app.get("/", (req, res) => {
 app.get("/health", (req, res) => {
     res.json({ status: "healthy", timestamp: new Date().toISOString() });
 });
+
 // ==================== START SERVER ====================
 app.listen(PORT, () => {
     console.log(`✅ Debby Booster backend running on port ${PORT}`);
