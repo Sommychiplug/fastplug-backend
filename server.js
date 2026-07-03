@@ -150,6 +150,61 @@ app.get("/api/admin/services", async (req, res) => {
     }
 });
 
+// ==================== BULK UPDATE PRICES ====================
+app.post("/api/admin/services/bulk-update", async (req, res) => {
+    try {
+        const { exchangeRate, profitMargin } = req.body;
+        const services = await Service.find();
+        let updatedCount = 0;
+
+        for (const service of services) {
+            const newPriceNGN = Math.ceil(service.priceUSD * exchangeRate) + profitMargin;
+            service.priceNGN = newPriceNGN;
+            service.profit = profitMargin;
+            service.updatedAt = new Date();
+            await service.save();
+            updatedCount++;
+        }
+
+        res.json({
+            success: true,
+            updated: updatedCount,
+            exchangeRate,
+            profitMargin
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ==================== UPDATE SERVICE PRICE ====================
+app.put("/api/admin/service/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { userPriceNGN, profit } = req.body;
+
+        const service = await Service.findOne({ id: id });
+        if (!service) {
+            return res.status(404).json({ success: false, error: "Service not found" });
+        }
+
+        if (userPriceNGN !== undefined) {
+            service.userPriceNGN = userPriceNGN;
+        }
+        if (profit !== undefined) {
+            service.profit = profit;
+        }
+        service.updatedAt = new Date();
+
+        await service.save();
+        res.json({ success: true, service });
+
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // ==================== ROOT ROUTES ====================
 app.get("/", (req, res) => {
     res.json({ 
