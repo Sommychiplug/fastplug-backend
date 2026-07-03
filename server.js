@@ -166,5 +166,5 @@ app.get("/health", (req, res) => {
 // ==================== START SERVER ====================
 app.listen(PORT, () => {
     console.log(`✅ Debby Booster backend running on port ${PORT}`);
-    console.log(`📍 Health check: https://debby-booster-backend.onrender.com/health`);
+    console.log(`📍 Health check: https://fastplug-api.onrender.com/health`);
 });
