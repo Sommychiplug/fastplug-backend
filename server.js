@@ -1,4 +1,3 @@
-// server.js - Complete with all routes
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
