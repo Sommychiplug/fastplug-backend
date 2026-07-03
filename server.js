@@ -1,8 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const axios = require("axios");
 require("dotenv").config();
 
@@ -69,8 +67,10 @@ app.post("/api/admin/import-services-ngn", async (req, res) => {
             });
         }
 
+        // Clear existing services
         await Service.deleteMany({});
 
+        // Fetch from Exosupplier
         const response = await axios.post("https://exosupplier.com/api/v2", {
             key: process.env.EXO_API_KEY,
             action: "services"
